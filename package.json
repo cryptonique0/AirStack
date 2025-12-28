@@ -26,10 +26,10 @@
   "author": "web3joker",
   "license": "MIT",
   "dependencies": {
-    "@stacks/auth": "^6.5.0",
-    "@stacks/connect": "^13.9.0",
-    "@stacks/network": "^6.5.0",
-    "@stacks/transactions": "^6.5.0",
+    "@stacks/auth": "^6.13.0",
+    "@stacks/connect": "^13.3.0",
+    "@stacks/network": "^6.13.0",
+    "@stacks/transactions": "^6.13.0",
     "@walletconnect/web3-provider": "^2.10.0",
     "vue": "^3.3.0"
   },
