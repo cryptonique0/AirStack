@@ -8,6 +8,7 @@ A comprehensive token airdrop system built with Clarity smart contracts for the 
 - Whitelist Management: Secure whitelist system for eligible addresses with tiered support
 - Batch Airdrop: Efficiently distribute tokens to multiple addresses
 - Merkle Tree Verification: Gas-efficient proof-based claim system
+- **Aggregated Multi-Airdrop Claims**: Claim from multiple campaigns in a single transaction
 - Admin Controls: Owner-only functions for managing airdrops
 - Emergency Controls: Pause/unpause functionality for security
 - Vesting Schedules: Time-locked distributions with cliff and linear vesting
@@ -23,6 +24,10 @@ Smart Contracts
 2. airdrop-manager.clar: Main airdrop distribution logic
 3. whitelist-manager.clar: Whitelist management system with tiered allocations
 4. vesting-schedule.clar: Time-locked token distribution with cliff periods
+5. multi-claim-aggregator.clar: Aggregate claims from multiple campaigns in one transaction
+6. governance.clar: DAO voting and proposal system
+7. merkle-tree.clar: Merkle proof verification for efficient claims
+8. analytics.clar: Comprehensive tracking and statistics
 ## Project Structure
 
 ```
@@ -34,13 +39,15 @@ AirStack/
 │   ├── vesting-schedule.clar        # Vesting Logic
 │   ├── governance.clar              # DAO Voting
 │   ├── merkle-tree.clar             # Merkle Proofs
+│   ├── multi-claim-aggregator.clar  # Multi-Campaign Claims
 │   └── analytics.clar               # Analytics & Stats
 ├── tests/
 │   ├── airdrop-token_test.ts
 │   ├── airdrop-manager_test.ts
 │   ├── whitelist-manager_test.ts
 │   ├── vesting-schedule_test.ts
-│   └── governance_test.ts
+│   ├── governance_test.ts
+│   └── multi-claim-aggregator_test.ts
 ├── scripts/
 │   ├── deploy.ts                    # Deployment Script
 │   ├── airdrop-setup.ts            # Setup Configuration
@@ -106,25 +113,36 @@ clarinet test tests/airdrop-manager.test.ts
 
 ## Advanced Features
 
-Vesting Schedules
+### Aggregated Multi-Airdrop Claims (Single TX)
+
+Allows users to claim tokens from multiple airdrop campaigns in a single transaction:
+- **Combine multiple claim types**: Whitelist + Merkle + Vesting in one call
+- **Proof verification**: Automatic verification for merkle-based claims
+- **Double-claim prevention**: Built-in tracking prevents claiming the same campaign twice
+- **Gas optimization**: Save on transaction fees by batching up to 10 claims
+- **Claim tracking**: Full history of aggregated claims per user
+
+**Example Use Case**: A user eligible for 3 whitelist airdrops, 2 merkle-verified campaigns, and 1 vesting schedule can claim all in a single transaction instead of 6 separate transactions.
+
+### Vesting Schedules
 - Create time-locked token releases with configurable cliff periods
 - Linear vesting after cliff with automatic calculations
 - Track vesting progress and claimable amounts
 - Support for multiple simultaneous vesting schedules
 
-Governance & DAO
+### Governance & DAO
 - Community voting on airdrop proposals
 - Token-weighted voting system
 - Proposal creation and management
 - Vote tracking and execution
 
-Merkle Trees
+### Merkle Trees
 - Generate merkle proofs for batch claims
 - Verify claims without storing entire whitelist on-chain
 - Efficient gas usage for large airdrops
 - Prevent double-spending automatically
 
-Analytics & Tracking
+### Analytics & Tracking
 - Track total distributions and claims
 - Per-user claim history
 - Campaign statistics and metrics
@@ -163,6 +181,15 @@ Merkle Tree
 - `(register-merkle-root (root (buff 32)))`: Register new merkle root
 - `(verify-proof (root-id uint) (leaf (buff 32)) (proof (list 32 (buff 32))))`: Verify inclusion proof
 - `(mark-leaf-claimed (root-id uint) (leaf-hash (buff 32)))`: Mark as claimed
+
+Multi-Claim Aggregator
+- `(aggregate-multi-claim (whitelist-airdrops (list 10 uint)) (merkle-claims (list 10 {...})) (vesting-schedules (list 10 uint)))`: Claim from multiple campaigns in one transaction
+- `(claim-from-whitelist-airdrop (airdrop-id uint))`: Claim from single whitelist airdrop
+- `(claim-from-merkle-airdrop (root-id uint) (leaf (buff 32)) (proof (list 32 (buff 32))))`: Claim from merkle-verified campaign
+- `(claim-from-vesting (schedule-id uint))`: Claim vested tokens
+- `(has-claimed-campaign (user principal) (campaign-type (string-ascii 20)) (campaign-id uint))`: Check if user claimed from campaign
+- `(activate-aggregator)`: Enable aggregated claims
+- `(deactivate-aggregator)`: Disable aggregated claims
 
 Token Contract
 Standard SIP-010 functions:
