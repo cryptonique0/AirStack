@@ -1,97 +1,117 @@
-import { makeContractDeploy, broadcastTransaction, AnchorMode } from '@stacks/transactions';
-import { StacksTestnet, StacksMainnet } from '@stacks/network';
-import * as fs from 'fs';
+import { ethers } from "hardhat";
 
-interface DeployConfig {
-  network: 'testnet' | 'mainnet';
-  senderKey: string;
-  contractName: string;
-  codeBody: string;
-}
+async function main() {
+  console.log("Deploying AirStack Airdrop System to Base Chain...");
 
-async function deployContract(config: DeployConfig) {
-  const network = config.network === 'mainnet' 
-    ? new StacksMainnet() 
-    : new StacksTestnet();
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying with account:", deployer.address);
 
-  console.log(`Deploying ${config.contractName} to ${config.network}...`);
+  // Deploy AirdropToken
+  console.log("\nDeploying AirdropToken...");
+  const AirdropToken = await ethers.getContractFactory("AirdropToken");
+  const token = await AirdropToken.deploy();
+  await token.waitForDeployment();
+  const tokenAddress = await token.getAddress();
+  console.log("AirdropToken deployed to:", tokenAddress);
 
-  const txOptions = {
-    contractName: config.contractName,
-    codeBody: config.codeBody,
-    senderKey: config.senderKey,
-    network,
-    anchorMode: AnchorMode.Any,
+  // Deploy AirdropManager
+  console.log("\nDeploying AirdropManager...");
+  const AirdropManager = await ethers.getContractFactory("AirdropManager");
+  const manager = await AirdropManager.deploy();
+  await manager.waitForDeployment();
+  const managerAddress = await manager.getAddress();
+  console.log("AirdropManager deployed to:", managerAddress);
+
+  // Deploy WhitelistManager
+  console.log("\nDeploying WhitelistManager...");
+  const WhitelistManager = await ethers.getContractFactory("WhitelistManager");
+  const whitelist = await WhitelistManager.deploy();
+  await whitelist.waitForDeployment();
+  const whitelistAddress = await whitelist.getAddress();
+  console.log("WhitelistManager deployed to:", whitelistAddress);
+
+  // Deploy VestingSchedule
+  console.log("\nDeploying VestingSchedule...");
+  const VestingSchedule = await ethers.getContractFactory("VestingSchedule");
+  const vesting = await VestingSchedule.deploy();
+  await vesting.waitForDeployment();
+  const vestingAddress = await vesting.getAddress();
+  console.log("VestingSchedule deployed to:", vestingAddress);
+
+  // Deploy Governance
+  console.log("\nDeploying Governance...");
+  const Governance = await ethers.getContractFactory("Governance");
+  const governance = await Governance.deploy();
+  await governance.waitForDeployment();
+  const governanceAddress = await governance.getAddress();
+  console.log("Governance deployed to:", governanceAddress);
+
+  // Deploy MerkleTree
+  console.log("\nDeploying MerkleTree...");
+  const MerkleTree = await ethers.getContractFactory("MerkleTree");
+  const merkleTree = await MerkleTree.deploy();
+  await merkleTree.waitForDeployment();
+  const merkleAddress = await merkleTree.getAddress();
+  console.log("MerkleTree deployed to:", merkleAddress);
+
+  // Deploy ETHAirdropManager
+  console.log("\nDeploying ETHAirdropManager...");
+  const ETHAirdropManager = await ethers.getContractFactory("ETHAirdropManager");
+  const ethManager = await ETHAirdropManager.deploy();
+  await ethManager.waitForDeployment();
+  const ethManagerAddress = await ethManager.getAddress();
+  console.log("ETHAirdropManager deployed to:", ethManagerAddress);
+
+  // Deploy AirdropAggregator
+  console.log("\nDeploying AirdropAggregator...");
+  const AirdropAggregator = await ethers.getContractFactory("AirdropAggregator");
+  const aggregator = await AirdropAggregator.deploy();
+  await aggregator.waitForDeployment();
+  const aggregatorAddress = await aggregator.getAddress();
+  console.log("AirdropAggregator deployed to:", aggregatorAddress);
+
+  // Deploy Analytics
+  console.log("\nDeploying Analytics...");
+  const Analytics = await ethers.getContractFactory("Analytics");
+  const analytics = await Analytics.deploy();
+  await analytics.waitForDeployment();
+  const analyticsAddress = await analytics.getAddress();
+  console.log("Analytics deployed to:", analyticsAddress);
+
+  // Save deployment addresses
+  const deploymentInfo = {
+    network: "base",
+    timestamp: new Date().toISOString(),
+    deployer: deployer.address,
+    contracts: {
+      AirdropToken: tokenAddress,
+      AirdropManager: managerAddress,
+      WhitelistManager: whitelistAddress,
+      VestingSchedule: vestingAddress,
+      Governance: governanceAddress,
+      MerkleTree: merkleAddress,
+      ETHAirdropManager: ethManagerAddress,
+      AirdropAggregator: aggregatorAddress,
+      Analytics: analyticsAddress,
+    },
   };
 
-  try {
-    const transaction = await makeContractDeploy(txOptions);
-    const broadcastResponse = await broadcastTransaction(transaction, network);
-    
-    console.log(`Transaction ID: ${broadcastResponse.txid}`);
-    console.log(`Contract deployed successfully!`);
-    
-    return broadcastResponse;
-  } catch (error) {
-    console.error(`Error deploying contract:`, error);
-    throw error;
-  }
+  console.log("\n=== DEPLOYMENT SUMMARY ===");
+  console.log(JSON.stringify(deploymentInfo, null, 2));
+
+  // Transfer some tokens to manager for testing
+  console.log("\nTransferring tokens to AirdropManager...");
+  const transferAmount = ethers.parseUnits("1000000", 6); // 1M tokens
+  await token.transfer(managerAddress, transferAmount);
+  console.log("Transferred 1,000,000 tokens to AirdropManager");
+
+  console.log("\nDeployment complete!");
+  return deploymentInfo;
 }
 
-async function deployAll() {
-  // Read environment variables
-  const network = (process.env.NETWORK || 'testnet') as 'testnet' | 'mainnet';
-  const senderKey = process.env.STACKS_PRIVATE_KEY;
-
-  if (!senderKey) {
-    throw new Error('STACKS_PRIVATE_KEY environment variable is required');
-  }
-
-  // Read contract files
-  const tokenCode = fs.readFileSync('./contracts/airdrop-token.clar', 'utf8');
-  const whitelistCode = fs.readFileSync('./contracts/whitelist-manager.clar', 'utf8');
-  const airdropCode = fs.readFileSync('./contracts/airdrop-manager.clar', 'utf8');
-
-  console.log('Starting deployment sequence...\n');
-
-  // Deploy contracts in order
-  try {
-    // 1. Deploy token contract
-    await deployContract({
-      network,
-      senderKey,
-      contractName: 'airdrop-token',
-      codeBody: tokenCode,
-    });
-
-    console.log('\nWaiting 30 seconds before next deployment...\n');
-    await new Promise(resolve => setTimeout(resolve, 30000));
-
-    // 2. Deploy whitelist manager
-    await deployContract({
-      network,
-      senderKey,
-      contractName: 'whitelist-manager',
-      codeBody: whitelistCode,
-    });
-
-    console.log('\nWaiting 30 seconds before next deployment...\n');
-    await new Promise(resolve => setTimeout(resolve, 30000));
-
-    // 3. Deploy airdrop manager
-    await deployContract({
-      network,
-      senderKey,
-      contractName: 'airdrop-manager',
-      codeBody: airdropCode,
-    });
-
-    console.log('\n✅ All contracts deployed successfully!');
-  } catch (error) {
-    console.error('\n❌ Deployment failed:', error);
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
     process.exit(1);
-  }
-}
-
-// Run deployment
-deployAll();
+  });
