@@ -1,0 +1,9 @@
+node_modules/
+.cache/
+settings/
+coverage/
+*.log
+.DS_Store
+deployments/
+history.txt
+costs-reports.json
