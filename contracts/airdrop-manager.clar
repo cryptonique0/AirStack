@@ -16,6 +16,10 @@
 ;; Data Variables
 (define-data-var airdrop-counter uint u0)
 (define-data-var paused bool false)
+;; Compliance & RBAC gating
+(define-data-var whitelist-contract (optional principal) none)
+(define-data-var kyc-required bool false)
+(define-data-var rbac-required bool false)
 
 ;; Data Maps
 (define-map airdrops
@@ -39,6 +43,12 @@
 (define-map airdrop-allocations
   { airdrop-id: uint, recipient: principal }
   uint
+)
+
+;; RBAC claimers
+(define-map rbac-claimers
+  principal
+  bool
 )
 
 ;; Read-Only Functions
@@ -81,6 +91,47 @@
 
 (define-private (is-contract-owner)
   (is-eq tx-sender contract-owner)
+)
+
+;; Admin: configure compliance & RBAC
+(define-public (set-whitelist-contract (contract principal))
+  (begin
+    (asserts! (is-contract-owner) err-owner-only)
+    (var-set whitelist-contract (some contract))
+    (ok true)
+  )
+)
+
+(define-public (set-kyc-required (required bool))
+  (begin
+    (asserts! (is-contract-owner) err-owner-only)
+    (var-set kyc-required required)
+    (ok true)
+  )
+)
+
+(define-public (set-rbac-required (required bool))
+  (begin
+    (asserts! (is-contract-owner) err-owner-only)
+    (var-set rbac-required required)
+    (ok true)
+  )
+)
+
+(define-public (grant-claimer-role (address principal))
+  (begin
+    (asserts! (is-contract-owner) err-owner-only)
+    (map-set rbac-claimers address true)
+    (ok true)
+  )
+)
+
+(define-public (revoke-claimer-role (address principal))
+  (begin
+    (asserts! (is-contract-owner) err-owner-only)
+    (map-set rbac-claimers address false)
+    (ok true)
+  )
 )
 
 ;; Public Functions
@@ -194,6 +245,21 @@
     (asserts! (is-airdrop-active airdrop-id) err-airdrop-not-active)
     (asserts! (not (get claimed claim-info)) err-already-claimed)
     (asserts! (> allocation u0) err-invalid-amount)
+
+    ;; KYC gating via whitelist-manager if required
+    (if (var-get kyc-required)
+      (match (var-get whitelist-contract)
+        contract-principal (asserts! (contract-call? contract-principal is-whitelisted tx-sender) err-not-whitelisted)
+        none true
+      )
+      true
+    )
+
+    ;; RBAC gating for claimers if required
+    (if (var-get rbac-required)
+      (asserts! (default-to false (map-get? rbac-claimers tx-sender)) err-not-whitelisted)
+      true
+    )
     
     ;; Mark as claimed
     (map-set claims
