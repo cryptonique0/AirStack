@@ -1,2 +1,0 @@
-[workspace]
-members = ["univariate_poly", "multivariate_poly", "shamir_secret_sharing", "sum_check", "gkr", "kzg", "fft"]
