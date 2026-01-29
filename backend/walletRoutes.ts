@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { MultiWalletTrackingService } from "./multiWalletTrackingService";
 import { ethers } from "ethers";
+import { AddWalletSchema, RemoveWalletSchema } from "./zodSchemas";
 
 const router = express.Router();
 
@@ -75,21 +76,17 @@ router.get("/profile/:address", async (req: Request, res: Response) => {
  */
 router.post("/watchlist/add", async (req: Request, res: Response) => {
   try {
-    const { userAddress, wallet } = req.body;
-
+    const parseResult = AddWalletSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.errors.map(e => e.message).join(", ") });
+    }
+    const { wallet, name } = parseResult.data;
+    // You may want to get userAddress from auth/session in production
+    const userAddress = req.body.userAddress;
     if (!ethers.isAddress(userAddress)) {
       return res.status(400).json({ error: "Invalid user address" });
     }
-
-    if (!ethers.isAddress(wallet)) {
-      return res.status(400).json({ error: "Invalid wallet address" });
-    }
-
-    const txHash = await walletTrackingService.addToWatchlist(
-      userAddress,
-      wallet
-    );
-
+    const txHash = await walletTrackingService.addToWatchlist(userAddress, wallet);
     res.status(200).json({
       success: true,
       message: "Wallet added to watchlist",
@@ -108,21 +105,16 @@ router.post("/watchlist/add", async (req: Request, res: Response) => {
  */
 router.post("/watchlist/remove", async (req: Request, res: Response) => {
   try {
-    const { userAddress, wallet } = req.body;
-
+    const parseResult = RemoveWalletSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.errors.map(e => e.message).join(", ") });
+    }
+    const { wallet } = parseResult.data;
+    const userAddress = req.body.userAddress;
     if (!ethers.isAddress(userAddress)) {
       return res.status(400).json({ error: "Invalid user address" });
     }
-
-    if (!ethers.isAddress(wallet)) {
-      return res.status(400).json({ error: "Invalid wallet address" });
-    }
-
-    const txHash = await walletTrackingService.removeFromWatchlist(
-      userAddress,
-      wallet
-    );
-
+    const txHash = await walletTrackingService.removeFromWatchlist(userAddress, wallet);
     res.status(200).json({
       success: true,
       message: "Wallet removed from watchlist",
