@@ -460,6 +460,20 @@ AirStack supports multiple languages out of the box:
 
 ---
 
+## 🔔 Real-Time Notifications
+
+AirStack supports real-time notifications for claim events, campaign launches, and more:
+- Backend: `backend/notificationService.ts` (Socket.IO server)
+- Frontend: `NotificationProvider.tsx` React component for displaying notifications
+- Users receive instant updates for important actions
+
+**How to Use:**
+- Initialize notification service in your backend server
+- Wrap your app with `<NotificationProvider userId={userId}>` in the frontend
+- Use `sendNotification(userId, message)` in backend to push events
+
+---
+
 **Version**: 1.0.0
 **Last Updated**: December 2024
 **Status**: ✅ Production Ready
