@@ -42,15 +42,23 @@ Multi-chain airdrop distribution across 6 blockchains with LayerZero and Wormhol
 
 ---
 
+## 🆕 Recent Enhancements
+
+- ♿ **Accessibility**: ARIA roles, keyboard navigation for dashboard, watchlist, leaderboard
+- 🛡️ **Error Handling**: ErrorBoundary React component for frontend, custom 404/500 pages
+- 🧪 **API Validation**: zod-based input validation for backend API endpoints
+- 🚨 **Centralized Error Handler**: Express middleware for consistent backend error responses
+
+---
+
 ## 🎯 Quick Navigation
 
 ### For Backend Developers
 
-**Analytics Backend** (`/backend/`)
-- `analyticsService.ts` - Real-time metrics and leaderboard
-- `predictiveAnalytics.ts` - Forecasting engine
-- `roiTracking.ts` - Campaign ROI calculations
-- `csvExport.ts` - CSV generation utility
+**API Validation & Error Handling**
+- `zodSchemas.ts` - Zod schemas for validating API input (backend/)
+- `errorHandler.ts` - Centralized Express error handler (backend/)
+- Integrated in `walletRoutes.ts` for wallet add/remove endpoints
 
 **Smart Contracts** (`/contracts/`)
 - `CrossChainBridge.sol` - Multi-chain token bridging
@@ -62,6 +70,11 @@ Multi-chain airdrop distribution across 6 blockchains with LayerZero and Wormhol
 - `CrossChainSDK.ts` - TypeScript client library
 
 ### For Frontend Developers
+
+**Error Handling & UX**
+- `ErrorBoundary.tsx` - React error boundary for catching UI errors (frontend/src/components/)
+- `NotFound.tsx` - Custom 404 error page (frontend/src/components/)
+- `ServerError.tsx` - Custom 500 error page (frontend/src/components/)
 
 **React Components** (`/frontend/src/components/Analytics/`)
 - `Dashboard.tsx` - Main analytics dashboard
