@@ -446,6 +446,20 @@ You now have a **complete, production-ready** multi-chain airdrop platform with:
 
 ---
 
+## 🌐 Multi-Language (i18n) Support
+
+AirStack supports multiple languages out of the box:
+- English (EN) and Spanish (ES) included by default
+- Easily add more languages in `frontend/src/i18n.ts`
+- Use the `<LanguageSwitcher />` component to let users change language
+- All UI text is translatable using `react-i18next`
+
+**How to Customize:**
+- Edit `frontend/src/i18n.ts` to add or update translations
+- Use the `t('key')` function from `react-i18next` in your components
+
+---
+
 **Version**: 1.0.0
 **Last Updated**: December 2024
 **Status**: ✅ Production Ready
