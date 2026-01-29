@@ -113,7 +113,7 @@ const MultiWalletDashboard: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-8">
+    <div className="bg-gray-50 min-h-screen p-8" role="main" aria-label="Multi Wallet Dashboard">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -133,6 +133,8 @@ const MultiWalletDashboard: React.FC = () => {
               value={newWallet}
               onChange={(e) => setNewWallet(e.target.value)}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Wallet address or ENS name"
+              tabIndex={0}
             />
             <button
               onClick={addWallet}

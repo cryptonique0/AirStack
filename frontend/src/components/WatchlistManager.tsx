@@ -19,6 +19,18 @@ interface WatchlistItem {
  * Manage and organize wallet watchlists with bulk operations
  */
 const WatchlistManager: React.FC = () => {
+    // Accessibility: Keyboard navigation for watchlist table rows
+    const handleRowKeyDown = (e: React.KeyboardEvent<HTMLTableRowElement>, wallet: string) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        // Select or focus wallet row
+        setSelectedWallets((prev) => {
+          const newSet = new Set(prev);
+          if (newSet.has(wallet)) newSet.delete(wallet);
+          else newSet.add(wallet);
+          return newSet;
+        });
+      }
+    };
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -474,7 +486,8 @@ const WatchlistRow: React.FC<WatchlistRowProps> = ({
       </td>
 
       <td className="px-6 py-4">
-        <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+        <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600" aria-label={`Wallet address ${item.wallet}`}
+          tabIndex={0}>
           {item.wallet.slice(0, 10)}...{item.wallet.slice(-8)}
         </code>
       </td>

@@ -70,7 +70,7 @@ export const Leaderboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full" role="region" aria-label="Leaderboard">
       <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
@@ -109,7 +109,7 @@ export const Leaderboard: React.FC = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full" role="table" aria-label="Leaderboard table">
             <thead>
               <tr className="border-b border-slate-700 bg-slate-900">
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Rank</th>
@@ -127,6 +127,13 @@ export const Leaderboard: React.FC = () => {
                   className={`border-b border-slate-700 transition-colors ${
                     index % 2 === 0 ? 'bg-slate-800' : 'bg-slate-750'
                   } hover:bg-slate-700`}
+                  tabIndex={0}
+                  aria-label={`Rank ${entry.rank} ${entry.address}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      // Optionally: show details or highlight row
+                    }
+                  }}
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
