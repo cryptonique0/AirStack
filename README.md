@@ -196,6 +196,19 @@ See quick start guides for detailed steps.
 
 ---
 
+## 🚀 User Onboarding Flow
+
+AirStack provides a guided onboarding experience for new users:
+- Stepper UI walks users through wallet connection, profile setup, first claim, and dashboard tour
+- Tooltips and contextual help for each step
+- Easy integration: import and use `<OnboardingStepper />` in your main app
+
+**How to Customize:**
+- Edit `frontend/src/components/OnboardingStepper.tsx` to change steps or add custom logic
+- Add your own tooltips, modals, or links for a branded experience
+
+---
+
 ## 📊 Project Statistics
 
 ### Code
