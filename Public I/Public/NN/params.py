@@ -1,2 +1,0 @@
-# params.py
-PRIVATE_KEY = "YOUR_WALLET_PRIVATE_KEY"
